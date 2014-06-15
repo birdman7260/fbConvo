@@ -1,7 +1,9 @@
 import json
 from pprint import pprint
 
-with open('c:\users\david\downloads\download (2)') as jsonData:
+with open('C:\Users\David\Documents\GitHub\\fbData\convo') as jsonData:
     d = json.load(jsonData)
     jsonData.close()
-    pprint(d)
+
+
+print d['peeps']
