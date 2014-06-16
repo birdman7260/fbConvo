@@ -105,6 +105,7 @@ function fbExtract(){
 
     //download JSON object
     var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(convo));
+    //var data = "text/json;charset=utf-8," + JSON.stringify(convo);
     jQuery('<a id="dl" href="data:' + data + '" download="data.json">download JSON</a>').appendTo('body');
     document.getElementById('dl').click();
     jQuery('#dl').remove();
