@@ -20,18 +20,18 @@ convo = {
 
 convo['peeps'] = [yourName, theirName];
 
-months = {'January': 1,
-    'February':2,
-    'March':3,
-    'April':4,
-    'May':5,
-    'June':6,
-    'July':7,
-    'August':8,
-    'September':9,
-    'October':10,
-    'November':11,
-    'December':12};
+months = {'January': 0,
+    'February':1,
+    'March':2,
+    'April':3,
+    'May':4,
+    'June':5,
+    'July':6,
+    'August':7,
+    'September':8,
+    'October':9,
+    'November':10,
+    'December':11};
 
 function jqLoad(){
     var jq = document.createElement('script');
@@ -105,24 +105,11 @@ function fbExtract(){
 
     //download JSON object
     var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(convo));
-    //var data = "text/json;charset=utf-8," + JSON.stringify(convo);
     jQuery('<a id="dl" href="data:' + data + '" download="data.json">download JSON</a>').appendTo('body');
     document.getElementById('dl').click();
     jQuery('#dl').remove();
 
-
-    alert(yourName+": "+yourTotal+"\n"+theirName+": "+theirTotal);
 }//end extraction
 
-
-/*
-wordcount = text.split(' ').length;
-                if(userName==theirName){
-                    theirTotal+=wordcount;
-                }
-                if(userName==yourName){
-                    yourTotal+=wordcount;
-                }
-*/
 
 //});
