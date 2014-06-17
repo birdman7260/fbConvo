@@ -1,10 +1,11 @@
 import json
 import sys, nltk
 import datetime
+import numpy as np
 from pprint import pprint
-
-#see wordHistogram
-histoString = ''
+import matplotlib.pyplot as plt
+from matplotlib.dates import YearLocator, DayLocator, HourLocator, DateFormatter, drange
+from numpy import arange
 
 #see timeLine
 dateDict = {}
@@ -12,22 +13,22 @@ dateDict = {}
 #see hourHistogram
 hourDict = {}
 
-#escape the f, a.k.a get the f outta there!
-with open('C:\Users\David\Documents\GitHub\\fbData\chelConvo') as jsonData:
+with open('C:\Users\Bird\Documents\FB Data\html\download') as jsonData:
     d = json.load(jsonData)
+    print 'Finished'
+    print '---------------------'
 
-#userList stucture:
-# {
-#   u1 : {
-#           words : [[num]],
-#           messages : [[num]]
-#       }
-#
-userList = {}
-
-def wordCount():
+def wordCount(messages):
+    #userList stucture:
+    # {
+    #   u1 : {
+    #           words : [[num]],
+    #           messages : [[num]]
+    #       }
+    #
+    userList = {}
     f = open('wordDump.txt','w')
-    for m in d['messages']:
+    for m in messages:
         #add the raw string of the message to the wordDump for wordl
         try:
             f.write(m['text']+'\n')
@@ -44,30 +45,57 @@ def wordCount():
         else:
             userList[m['user']]['words'] += numWords
             userList[m['user']]['messages'] += 1
+    return userList
 
-def timeLine():
+def timeLine(messages):
     fl = open('timeLine.csv','w')
-    msgs = iter(d['messages'])
+    msgs = iter(messages)
     try:
         m = msgs.next()
         while True:
             wordCount = 0
-            date = datetime.datetime.strptime(m['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            datefull = m['date']
+            date = mkdate(m['date'])
             temp = date
-            while temp.date() == date.date():
+            while temp == date:
                 wordCount += len(m['text'].split(" "))
                 m = msgs.next()
-                temp = datetime.datetime.strptime(m['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                temp = mkdate(m['date'])
 
-            dateDict[str(date.date())] = wordCount
-            fl.write(str(date.date())+','+str(wordCount)+'\n')
+            dateDict[date] = wordCount
+            fl.write(str(date)+','+str(wordCount)+'\n')
     except StopIteration:
         print("No more messages.")
         fl.close()
 
+    a = np.array(dateDict.items(), dtype=[('date', '<f64'), ('amt', '<f64')])
+
+    fig, ax = plt.subplots()
+    ax.plot_date(a['date'], a['amt'])
+
+    # The hour locator takes the hour or sequence of hours you want to
+    # tick, not the base multiple
+
+    ax.xaxis.set_major_locator( YearLocator() )
+    ax.xaxis.set_minor_locator( DayLocator(1) )
+    ax.xaxis.set_major_formatter( DateFormatter('%Y-%m-%d') )
+
+    ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')
+    fig.autofmt_xdate()
+
+    plt.show()
+
+def mkdate(text):
+    return datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ').toordinal()
+
+def timeLinePlot():
+    fl = open('timeLine.csv')
+    data = np.genfromtxt(fl, delimiter=',', names='date, amt', dtype=[('date', 'datetime64'), (amt, '<i8')])
+    data
+
 #need to -5hrs from GMT
-def hourHistogram():
-    for m in d['messages']:
+def hourHistogram(messages):
+    for m in messages:
         date = datetime.datetime.strptime(m['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
         if date.hour not in hourDict.keys():
             hourDict[date.hour] = 1
@@ -75,6 +103,8 @@ def hourHistogram():
             hourDict[date.hour] += 1
         
 def wordHistogram():
+    #see wordHistogram
+    histoString = ''
     f2 = open('wordDump.txt', 'rU')
     txt = f2.read()
     f2.close()
